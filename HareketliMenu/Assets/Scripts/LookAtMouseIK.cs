@@ -3,13 +3,14 @@ using UnityEngine;
 public class LookAtMouseIK : MonoBehaviour
 {
     private Animator anim;
-    [SerializeField] private Transform headBone; 
+    //[SerializeField] private Transform headBone;
+   // [SerializeField] private Transform rightarm;
     [SerializeField] private float lookWeight = 1.0f; 
 
-    void Start() => anim = GetComponent<Animator>();
+    private void Start() => anim = GetComponent<Animator>();
 
    
-    void OnAnimatorIK(int layerIndex)
+    private void OnAnimatorIK(int layerIndex)
     {
         if (anim)
         {
