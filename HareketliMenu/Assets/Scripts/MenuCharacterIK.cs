@@ -11,14 +11,14 @@ public class MenuCharacterIK : MonoBehaviour
     [SerializeField] private float lookFollowSpeed = 14f;
 
     [Header("Quit Fix")]
-    [SerializeField] private float maxLookStepOnQuitExit = 0.25f;
+    [SerializeField] private float maxLookStepOnQuitExit = 0.1f;
     private bool justExitedQuit = false;
 
     [Header("Look Clamp")]
-    [SerializeField] private float minLookX = -0.55f;
-    [SerializeField] private float maxLookX = 0.55f;
-    [SerializeField] private float minLookY = 1.1f;
-    [SerializeField] private float maxLookY = 1.9f;
+    [SerializeField] private float minLookX = -0.7f;
+    [SerializeField] private float maxLookX = 0.7f;
+    [SerializeField] private float minLookY = 0.9f;
+    [SerializeField] private float maxLookY = 2.1f;
     [SerializeField] private float minLookZ = 1.0f;
     [SerializeField] private float maxLookZ = 2.4f;
 
@@ -53,7 +53,7 @@ public class MenuCharacterIK : MonoBehaviour
     private Vector3 currentLookPos;
     private bool isHoveringQuit = false;
 
-    void Start()
+   private void Start()
     {
         anim = GetComponent<Animator>();
         mainCam = Camera.main;
@@ -101,16 +101,15 @@ public class MenuCharacterIK : MonoBehaviour
         isHoveringQuit = false;
     }
 
-    void Update()
+    private void Update()
     {
-        // el ağırlığını yumuşat
+        //eli yavaşlatma
         currentHandWeight = Mathf.Lerp(currentHandWeight, targetHandWeight, Time.deltaTime * handWeightSpeed);
 
         Vector3 targetLookPos;
 
         if (isHoveringQuit && centerLookTarget != null)
         {
-            // quit'teyken merkeze bak
             targetLookPos = centerLookTarget.position;
         }
         else
@@ -122,7 +121,7 @@ public class MenuCharacterIK : MonoBehaviour
             targetLookPos = ClampLookTarget(worldPos);
 
             // quit'ten çıkınca aniden zıplamasın
-            if (justExitedQuit)
+           if (justExitedQuit)
             {
                 Vector3 delta = targetLookPos - currentLookPos;
                 if (delta.magnitude > maxLookStepOnQuitExit)
