@@ -14,6 +14,10 @@ public class MenuCharacterIK : MonoBehaviour
     [SerializeField] private float maxLookStepOnQuitExit = 0.1f;
     private bool justExitedQuit = false;
 
+    [Header("Hover Lock")]
+    [SerializeField] private float hoverLockDuration = 0.2f;
+    private float hoverLockTimer = 0f;
+
     [Header("Look Clamp")]
     [SerializeField] private float minLookX = -0.7f;
     [SerializeField] private float maxLookX = 0.7f;
@@ -53,7 +57,7 @@ public class MenuCharacterIK : MonoBehaviour
     private Vector3 currentLookPos;
     private bool isHoveringQuit = false;
 
-   private void Start()
+    private void Start()
     {
         anim = GetComponent<Animator>();
         mainCam = Camera.main;
@@ -61,16 +65,16 @@ public class MenuCharacterIK : MonoBehaviour
         currentHandPos = transform.position;
         currentHandRot = transform.rotation;
 
-        // look pozisyonunu başlat
         if (centerLookTarget != null)
             currentLookPos = centerLookTarget.position;
         else
             currentLookPos = transform.position + transform.forward * 2f;
     }
 
-    // butonlar üzerine gelindiğinde çağrılıyor
     public void HoverPlay()
     {
+        if (hoverLockTimer > 0f) return;
+
         currentButtonTarget = playTarget;
         targetHandWeight = 1f;
         isHoveringQuit = false;
@@ -78,6 +82,8 @@ public class MenuCharacterIK : MonoBehaviour
 
     public void HoverOptions()
     {
+        if (hoverLockTimer > 0f) return;
+
         currentButtonTarget = optionsTarget;
         targetHandWeight = 1f;
         isHoveringQuit = false;
@@ -85,6 +91,8 @@ public class MenuCharacterIK : MonoBehaviour
 
     public void HoverQuit()
     {
+        if (hoverLockTimer > 0f) return;
+
         currentButtonTarget = null;
         targetHandWeight = 0f;
         isHoveringQuit = true;
@@ -101,9 +109,25 @@ public class MenuCharacterIK : MonoBehaviour
         isHoveringQuit = false;
     }
 
+    public void ResetToNormal()
+    {
+        currentButtonTarget = null;
+        targetHandWeight = 0f;
+        isHoveringQuit = false;
+        justExitedQuit = false;
+    }
+
+    public void LockHoverTemporarily()
+    {
+        hoverLockTimer = hoverLockDuration;
+        ResetToNormal();
+    }
+
     private void Update()
     {
-        //eli yavaşlatma
+        if (hoverLockTimer > 0f)
+            hoverLockTimer -= Time.deltaTime;
+
         currentHandWeight = Mathf.Lerp(currentHandWeight, targetHandWeight, Time.deltaTime * handWeightSpeed);
 
         Vector3 targetLookPos;
@@ -114,16 +138,15 @@ public class MenuCharacterIK : MonoBehaviour
         }
         else
         {
-            // mouse pozisyonunu dünya koordinatına çevir
             Vector3 mousePos = Input.mousePosition;
             mousePos.z = mouseDepth;
             Vector3 worldPos = mainCam.ScreenToWorldPoint(mousePos);
             targetLookPos = ClampLookTarget(worldPos);
 
-            // quit'ten çıkınca aniden zıplamasın
-           if (justExitedQuit)
+            if (justExitedQuit)
             {
                 Vector3 delta = targetLookPos - currentLookPos;
+
                 if (delta.magnitude > maxLookStepOnQuitExit)
                     targetLookPos = currentLookPos + delta.normalized * maxLookStepOnQuitExit;
 
@@ -133,12 +156,12 @@ public class MenuCharacterIK : MonoBehaviour
 
         currentLookPos = Vector3.Lerp(currentLookPos, targetLookPos, Time.deltaTime * lookFollowSpeed);
 
-        // el hedefi varsa pozisyonu güncelle
         if (currentButtonTarget != null)
         {
             Vector3 lookDir = (currentLookPos - transform.position).normalized;
 
-            Vector3 rawHandPos = currentButtonTarget.position
+            Vector3 rawHandPos =
+                currentButtonTarget.position
                 + currentButtonTarget.right * sideOffset
                 + currentButtonTarget.up * heightOffset
                 + currentButtonTarget.forward * forwardOffset
@@ -151,15 +174,13 @@ public class MenuCharacterIK : MonoBehaviour
         }
     }
 
-    void OnAnimatorIK(int layerIndex)
+    private void OnAnimatorIK(int layerIndex)
     {
         if (anim == null || mainCam == null) return;
 
-        // kafa yönü
         anim.SetLookAtWeight(0.9f, 0f, 0.8f, 0f, 0.65f);
         anim.SetLookAtPosition(currentLookPos);
 
-        // hangi el
         AvatarIKGoal handGoal = useLeftHand ? AvatarIKGoal.LeftHand : AvatarIKGoal.RightHand;
 
         anim.SetIKPositionWeight(handGoal, currentHandWeight);
@@ -172,8 +193,7 @@ public class MenuCharacterIK : MonoBehaviour
         }
     }
 
-    // look hedefini karakterin önünde tut
-    Vector3 ClampLookTarget(Vector3 worldTarget)
+    private Vector3 ClampLookTarget(Vector3 worldTarget)
     {
         Vector3 local = transform.InverseTransformPoint(worldTarget);
 
@@ -184,8 +204,7 @@ public class MenuCharacterIK : MonoBehaviour
         return transform.TransformPoint(local);
     }
 
-    // eli belirli bir alanda tut
-    Vector3 ClampHandTarget(Vector3 worldTarget)
+    private Vector3 ClampHandTarget(Vector3 worldTarget)
     {
         Vector3 local = transform.InverseTransformPoint(worldTarget);
 

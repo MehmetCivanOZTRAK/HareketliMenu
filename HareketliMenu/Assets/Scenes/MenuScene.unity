@@ -2630,6 +2630,7 @@ MonoBehaviour:
   settingsPanel: {fileID: 1617785565}
   quitPanel: {fileID: 735104547}
   quitWarning: {fileID: 1858486943}
+  menuCharacterIK: {fileID: 5486169905537715579}
 --- !u!1 &1835651779
 GameObject:
   m_ObjectHideFlags: 0
@@ -4887,6 +4888,7 @@ MonoBehaviour:
   centerLookTarget: {fileID: 458247118}
   lookFollowSpeed: 14
   maxLookStepOnQuitExit: 0.1
+  hoverLockDuration: 0.2
   minLookX: -0.7
   maxLookX: 0.7
   minLookY: 0.9

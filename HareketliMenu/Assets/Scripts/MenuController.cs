@@ -12,10 +12,13 @@ public class MenuController : MonoBehaviour
     [Header("Paneller")]
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject quitPanel;
-      
-    [Header("Quit Warning")]  
+
+    [Header("Quit Warning Effect")]
     [SerializeField] private QuitWarning quitWarning;
-    
+
+    [Header("Karakter IK")]
+    [SerializeField] private MenuCharacterIK menuCharacterIK;
+
     private void Start()
     {
         mainMenu.SetActive(true);
@@ -35,6 +38,12 @@ public class MenuController : MonoBehaviour
         sceneMenuRoot.SetActive(false);
         settingsPanel.SetActive(true);
         quitPanel.SetActive(false);
+
+        if (quitWarning != null)
+            quitWarning.HideQuitWarning();
+
+        if (menuCharacterIK != null)
+            menuCharacterIK.LockHoverTemporarily();
     }
 
     public void CloseSettings()
@@ -42,6 +51,9 @@ public class MenuController : MonoBehaviour
         settingsPanel.SetActive(false);
         mainMenu.SetActive(true);
         sceneMenuRoot.SetActive(true);
+
+        if (menuCharacterIK != null)
+            menuCharacterIK.LockHoverTemporarily();
     }
 
     public void OpenQuit()
@@ -57,8 +69,12 @@ public class MenuController : MonoBehaviour
         quitPanel.SetActive(false);
         mainMenu.SetActive(true);
         sceneMenuRoot.SetActive(true);
-        
-        if(quitWarning!=null) quitWarning.HideQuitWarning();
+
+        if (quitWarning != null)
+            quitWarning.HideQuitWarning();
+
+        if (menuCharacterIK != null)
+            menuCharacterIK.LockHoverTemporarily();
     }
 
     public void QuitGame()
